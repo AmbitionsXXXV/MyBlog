@@ -9,6 +9,7 @@
 !/.yarn/plugins
 !/.yarn/sdks
 README1.md
+package1.json
 
 # testing
 /coverage

@@ -1,0 +1,230 @@
+---
+title: 前端工程化的理解
+date: '2022-11-24'
+tags: ['前端工程化', 'blog']
+draft: false
+summary: '前端工程化的理解'
+authors: ['default']
+---
+
+# 工程化
+
+## 模块化
+
+- 概念
+- 为什么需要模块化
+  - 代码抽象
+  - 代码封装
+  - 代码复用
+  - 依赖管理
+  - 最终目的就是将程序分成一个个小的结构
+  - 在这个结构中编写属于自己的代码（即有着自己的作用域），定义变量名词时不会因为和其他文件重复而进行污染等
+  - 同时可以将自己希望暴露的变量、函数、对象等导出给其他结构/块使用
+  - 也可以通过导入其他结构中的变量、函数、对象等
+- 此类结构即成为模块，用于对程序代码进行划分切割
+
+### 模块化方案(规范)
+
+- CommonJS(ES5)
+- ES Module(ES6 之后)
+- AMD 和 CMD(社区兴起过一段时间)
+
+#### CommonJS
+
+- 特点:
+  - 所有代码都运行在模块作用域，不会污染全局作用域
+  - 模块是同步加载的，即只有加载完成，才能执行后面的操作
+  - 模块在首次执行后就会缓存，再次加载只返回缓存结果，如果想要再次执行，可清除缓存
+  - `require`返回的值是被输出的值的拷贝，模块内部的变化也不会影响这个值
+
+##### CommonJS 是一个规范，最初提出是在浏览器以外的地方使用，并被命名为 ServerJS，后来改名为 CommonJS
+
+- Node 是 CommonJS 在服务器端一个具有代表性的实现
+- Browserify 是 CommonJS 在浏览器中的一种实现
+- webpack 具备对 CommonJS 的支持和转换
+
+##### 使用
+
+- 导出内容(模块)：exports,但主要方式还是 module.exports
+  - 但其实 CommonJS 中并没有 module.exports 的概念,这是借助于 node 全局对象下的 Module 类实现的
+- 导入内容(模块)：require
+
+```js
+// foo.js
+
+var name = 'oor'
+// exports.name = name
+module.exports = { name } // 主要导出方式还是结合node的Module
+```
+
+```js
+// bar.js
+
+var foo = require('foo.js')
+
+console.log(foo.name) // oor
+```
+
+##### 导入导出的本质
+
+- exports 是一个对象
+
+  ```js
+  var name = 'oor'
+  exports.name = name //
+  ```
+
+- require 本质是引用赋值
+
+  ```js
+  var foo = require('foo.js') // 将foo.js中exports对象的内存地址赋值到bar.js中的foo变量
+  ```
+
+##### CommonJS 规范缺点
+
+- CommonJS 加载模块是同步的:
+  - 意味着只有等到对应的模块加载完毕,当前模块中的内容才能被运行
+  - 因为服务器加载 js 文件都是本地文件,加载非常快,所以在 node 开发服务器这样的环境下,影响不大,但是在浏览器这样需要渲染,更需要异步执行脚本 js 文件情况下(尤其是在页面渲染放在 JS 文件中的前后端分离模式下)十分影响页面渲染
+- 应用于浏览器时
+  - 浏览器加载 js 文件需要先从服务器将文件下载下来,再加载运行
+  - 采用同步意味着后续 js 代码都会被阻塞无法正常运行,即使是一些 DOM 操作也一样
+- 所以浏览器环境下一般不使用 CommonJS 规范,而是使用 ES Module
+  - 但 webpack 下使用 CommonJS 另当别论
+  - 因为 webpack 会有特定 loader 将其转换为浏览器可执行的代码
+
+#### ES Module
+
+##### ES Module 使用
+
+- 导出内容(模块)：exports
+- 导入内容(模块)：import
+- 另外:采用 ES Module 将自动采用严格模式:"use strict"
+
+##### 和 CommonJS 的不同
+
+- 一方面 ES Module 使用的关键字不同
+- 另一方面采用编译期的静态分析,并且也加入了动态引用的方式
+
+##### ES Module 的解析流程
+
+- ES Module 的解析过程可以划分为三个阶段：
+  - 阶段一：构建（Construction），根据地址查找 js 文件，并且下载，将其解析成模块记录（Module Record）
+  - 阶段二：实例化（Instantiation），对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向
+    对应的内存地址
+  - 阶段三：运行（Evaluation），运行代码，计算值，并且将值填充到内存地址中
+    ![import解析过程](../img/import解析过程.png 'import解析过程')
+
+## 包管理工具
+
+- npm
+
+  - npm 指令
+
+    - npm cache clean 清理缓存
+
+- yarn
+- pnpm(performant npm)
+  - 硬链接:电脑文件系统中的多个文件平等的共享同一个存储单元,删除一个文件名字后,还可以用其他名字继续访问该文件
+  - 软连接(符号链接):包含有一条以绝对路径或者相对路径的形式指向其他文件或者目录的引用
+
+### package.json 常见字段作用
+
+- name(必填):项目名称
+- version(必填):当前项目版本号,"X.Y.Z"
+  - X 主版本号(major):当做了不兼容的 API 修改(可能不兼容之前的版本)
+  - Y 次版本号(minor):当做了向下兼容的功能性新增(新功能增加,但是兼容之前的版本)
+  - Z 修订号(patch): 当做了向下兼容的问题修正(没有新功能,修复了之前版本的 bug)
+  - X.Y.Z:表示一个明确的版本号
+  - ^X.Y.Z:表示 X 是保持不变的,Y 和 Z 永远安装最新的版本
+  - ~X.Y.Z:表示 X 和 Y 保持不变,Z 永远安装最新的版本
+- description:项目描述信息
+- author:作者相关信息(发布时用)
+- license:开源协议(发布时用)
+- main:设置程序入口文件
+- private:记录当前项目是否为私有,不写默认为 false,为 true 时,npm 不能发布该项目
+- scripts:以键值对方式配置一些脚本命令
+- dependencies:指定无论开发环境还是生成环境都需要依赖的包,与之对应的是 devDependencies
+- devDependencies:一些包在生产环境下是不需要的(npm install 时添加--save-dev/-D)
+- peerDependencies:依赖于某些其他 npm 库,例如 element-plus 依赖于 vue3,AntD 依赖于 React,React-DOM
+- engines:用于指定 Node 和 NPM 的版本号(也可以指定所在操作系统"OS":["darwin","linux"])
+- browserslist:用于配置打包后的 JavaScript 浏览器的兼容情况,否则需要手动添加 polyfills 来让浏览器支持某些语法,所以该属性是为 webpack 等打包工具服务的一个属性
+
+## Webpack
+
+- JavaScript 的打包:
+  - 将 ES6 转换成 ES5 的语法
+  - TypeScript 处理成 JavaScript
+- CSS 的处理:
+
+  - CSS 文件模块的加载和提取
+  - Less 和 Sass 等预处理器的处理
+  - 使用 css-loader
+
+    - ````js
+        // webpack.config.js 配置
+        // npm i css-loader -D
+        module:{
+        rules: {
+          test: /\.css$/,
+          use: [
+            { loader: 'css-loader' }
+          ]
+        }
+      }
+      ```
+      ````
+
+    - 但是 css-loader 只负责将.css 文件进行解析,并不会把解析后的 css 插入到页面中
+
+  - 使用 style-loader 完成对 style 的操作
+
+    - 使用
+
+    ````js
+      // webpack.config.js 配置
+      // npm i css-loader -D
+      module:{
+        rules: {
+          test: /\.css$/,
+          use: [
+            // use中多个loader的使用顺序是从后往前
+            { loader: 'style-loader' },
+            { loader: 'css-loader' }
+          ]
+        }
+      }
+      ```
+    ````
+
+- 资源文件 img 和 font:
+  - 图片 img 文件的加载
+  - 字体
+- HTML 资源的处理
+  - 打包 HTML 资源文件
+- 处理 vue 项目的 SFC 文件.vue 文件
+
+```npm
+npx webpack --entry ./src/main.js //修改webpack打包入口文件获取路径,默认为index.js
+```
+
+```npm
+npx webpack --output-filename bundle.js // 修改打后文件夹内部文件名,默认为main.js
+```
+
+```npm
+npx webpack --output-path ./build // 修改打包后的文件名,默认为dist
+```
+
+```js
+// webpack.config.js
+// 作用同上面npm指令
+const path = require('path')
+
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, './build'), // 必须通过node的path模块获取绝对路径
+  },
+}
+```

@@ -1,0 +1,257 @@
+---
+title: TypeScript的笔记
+date: '2022-11-26'
+tags: ['TypeScript', 'blog']
+draft: false
+summary: '总结下大致自己用过的TypeScript的语法,然后说说自己对TS的一些优势的理解,etc...'
+authors: ['default']
+---
+
+# 1.1 为什么需要 TypeScript,以及相较于 Javascript 解决的痛点
+
+- `JavaScript` 往往在项目编译后才能发现错误,而 `TypeScript` 通过类型的限制能够做到和大部分强
+  类型语言一样在编写阶段提出错误
+
+  ```js
+  function getLength(arg) {
+    return arg.length
+  }
+
+  getLength(123) // 只会在运行后报错，实际项目中会阻塞项目执行
+  ```
+
+- 而 TypeScript 提供了类型检验情况下在代码编写阶段提供了规范,尤其方便大型项目的开发,以及多人
+  协作开发情况下.同时还有提供的类型检验为第三方库的 API 提供了非常好的类型注解
+
+  ```ts
+  function getLength(arg: { length: number }) {
+    return arg.length
+  }
+  getLength(123) // 会直接提示错误
+  ```
+
+  两者关系
+  ![TypeScript 和 JavaScript 的关系图](/blog/ts和js的关系.png)
+
+# 1.2 TypeScript 的运行环境
+
+- 一般需要两个步骤
+  1. 通过 tsc 把 TS 编译成 JS 代码
+  2. 在浏览器或者 Node 环境下运行 JS 代码
+- 简化过后两种方式:
+  - 通过 webpack(主要:ts-loader),配置本地的 TS 编译环境和开启一个本地服务,可以直接运行在浏览器上
+  - 通过 ts-node 库,为 TS 的运行提供执行环境
+    - `npm i ts-lib @types/node -D`
+
+# 2.1 TypeScript 的类型
+
+## 基本类型
+
+- 字符串类型和数字类型
+
+```ts
+let band: string = 'OOR' // 描述类型时用字符串类型用首字母小写的 string
+let count: number = 10969 // 数字类型
+// 在 TS 中 undefined 和 null各自的类型也是 undefined 和 null,意味着他们既
+// 是实际的值也是自己的类型(有点字面量类型的意思)
+let und: undefined = undefined
+let n: null = null
+const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
+```
+
+- 数组类型
+
+  ```ts
+  // 两种定义方式
+  let arr: string[] = ['taka', 'toru']
+  let arr1: Array<string> = ['ryota', 'tomoya'] // 通过泛型定义
+  // 注意:在真实开发中,数组一般存放相同的数据类型,同时在以上两种数组定义方式后,对数组的增删改查的参数也只能是string类型
+  // 例如下面这样就不行
+  arr.push(10969) // 10969 为 number 类型,而 arr 为每个元素都为字符串的数组,所以 TS 会抛出异常
+  // 也可以直接通过类型推导
+  let arr2 = ['aimyon', '爱缪']
+  ```
+
+- 对象类型
+
+  ```ts
+  let obj: {
+    band: string
+    // band:代表obj 对象必须要有的 key ,string: 限制该 key 的 value 的类型
+    year?: number
+    // year?: key 后面加 ? 表示可选类型, obj 这个对象可以没有year这个属性,即不是必须
+  } = {
+    band: 'ONE OK ROCK',
+  }
+  ```
+
+  - 声明一个对象类型有两种方式,类型别名`type`和接口`interface`
+
+    - ```ts
+      // 类型别名方式
+      type Obj = {
+        type: string
+      }
+
+      // 接口方式
+      interface Obj1 {
+        type: string
+      }
+      ```
+
+    - 区别: 大部分情况下,两种方式可以任意选择没有区别
+
+- 函数定义类型
+
+  ```ts
+  // function sum(num1: xxx, num2: xxx): void {}
+  // xxx 代表函数行参所接受的类型,即传递实参必须遵守该类型
+  // void 表示函数没有返回值,同理可以设置为 number 等基础类型
+  function sum(num1: number, num2: number): void {}
+
+  // 另一种方式
+  // 因为函数也是一种对象,所以可以直接赋值一种类型
+  type FooType = () => void
+  const foo: FooType = () => {}
+  ```
+
+- TS 的特殊类型
+
+  - `any` 类型
+    - any 类型表示不限制标识符的任意类型
+    - any 类型做任何事情都是合法的
+  - `unkonwn` 类型
+    - 类似于 any 类型
+    - 但是 unknown 类型的值做任何事情都是不合法的
+      ```ts
+      // 但是类似于这样重新赋值是可以的
+      let a: unkonwn = 'oor'
+      a = 10969
+      // 只是不能对他做任何操作,简单说就是不能调用任何方法
+      // 比如直接进行
+      {
+        /* console.log(a.length) // 因为TS 不确定unknown 类型下的该标识符到底是什么类型,所以需要对unknown类型进行操作(此处为取 a 的 length)时,需要对其先进行类型缩小 */
+      }
+      if (typeof a === 'string') {
+        console.log(a.length)
+      }
+      ```
+  - `void` 类型
+    - 通常用于指定函数没有返回值,具体操作在函数定义类型中
+    - 当基于上下文的类型推导,推导出返回类型为 void 的时候,并不会强制函数一定不能返回内容
+  - `never` 类型:表示永远不会发生值的类型
+    - 如果一个函数中是一个死循环或抛出异常,那么这个函数肯定不会返回东西,所以用 void 类型或其他具体的类型作为返回值类型都不太合适,这时候就可以用 never 类型
+    - 使用场景:
+      - 一个函数如上是一个死循环或者返回异常
+      - 封装框架/工具库的时候
+  - `tuple`(元组) 类型
+
+    - 特点:元组数据结构中可以存放不同的数据类型,取出来的 item 也是有明确的类型的
+    - 对比数组: 虽然数组也可以通过联合类型定义可以存放不同数据类型的数组,但却无法确定每个 item 的具体数据类型
+    - ```ts
+      {
+        /* 元组的定义 */
+      }
+      const info: [string, number, string, number] = ['oor', 10969, 'aimyon', 3636]
+      const value = info[1] // value: number
+      ```
+    - 应用:
+
+      ```ts
+      {
+        /* 使用泛型前,暂时不对initailState做太多类型操作 */
+      }
+      function useState(initialState: number): [number, (number) => void] {
+        let stateValue = initialState
+        function setValue(newValue: number) {
+          stateValue = newValue
+        }
+        return [stateValue, setValue]
+      }
+      ```
+
+- TS 的类型操作
+
+  - 联合类型
+    - TS 的类型系统允许我们使用多种运算符,从现有类型中构建新类型
+    - 通过逻辑运算符的或 `|`,将多种类型联合,是一个标识符可以使用多种类型
+      ```ts
+      let band: number | string = 'oor'
+      ```
+    - 但是由于`band`变量可能是`number`可能是`string`,为`number`时不能使用字符串的方法,于是需要特殊情况进行缩小类型
+    - 类型缩小:
+      ```ts
+      if (typeof band == 'number') {
+        console.log('band成立多少年:', band)
+      } else {
+        console.log('band名是:', band.toUpperCase())
+      }
+      ```
+  - 类型别名`type`
+
+    - 当想要多次使用在类型注解中编写的同一种类型时,需要重复编写多次,于是可以使用类型别名定义一次类型,多次使用
+    - 实例:
+
+      ```ts
+      type IDType = number | string
+
+      let id: IDType = 10969
+      function printID(id: IDType) {
+        console.log(id)
+      }
+      ```
+
+  - 接口`interface`
+  - `type`和`interface`的区别:
+
+    1. `type`使用类型更广,接口类型只能用来声明对象
+    2. `interface`声明对象时,可以多次声明
+
+       1. `type`不允许两个相同名称的别名同时存在
+       2. `interface`可以多次声明同一个接口名称
+
+          ```ts
+          interface Obj {
+            a: number
+          }
+
+          interface Obj {
+            b: number
+          }
+
+          let obj: Obj = { a: 1, b: 2 }
+          ```
+
+       3. `interface`支持继承
+
+          ```ts
+          interface Band {
+            vocal: string
+            guitar: string
+          }
+
+          interface Member extends Band {
+            bassist: string
+            durmmer: string
+          }
+
+          const oor: Member = {
+            vocal: 'vocal',
+            guitar: 'guitar',
+            bassist: 'bassist',
+            durmmer: 'durmmer',
+          }
+          ```
+
+       4. `interface`可以被类实现
+
+    3. 所以一般开发过程中声明对象类型时候用`interface`,其他时候用`type`
+
+### TypeScript 的类型推导
+
+```ts
+// 声明一个标识符时,如果有进行赋值,会根据赋值的类型推导出标识符的类型注解
+let singer = 'aimyon'
+singer = 'taka' // singer 类型是 string
+singer = 3636 // 会报错,不能将 number 类型赋值给 string 类型
+```

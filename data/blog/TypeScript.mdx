@@ -1,6 +1,6 @@
 ---
 title: TypeScript的笔记
-date: '2022-11-26'
+date: '2023-1-26'
 tags: ['TypeScript', 'blog']
 draft: false
 summary: '总结下大致自己用过的TypeScript的语法,然后说说自己对TS的一些优势的理解,etc...'
@@ -174,7 +174,7 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
 
   - 联合类型
     - TS 的类型系统允许我们使用多种运算符,从现有类型中构建新类型
-    - 通过逻辑运算符的或 `|`,将多种类型联合,是一个标识符可以使用多种类型
+    - 通过逻辑运算符的或 `|`,将多种类型联合,使一个标识符可以使用多种类型
       ```ts
       let band: number | string = 'oor'
       ```
@@ -187,6 +187,8 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
         console.log('band名是:', band.toUpperCase())
       }
       ```
+  - 交叉类型
+    - 通过逻辑运算符的或 `&`,使得要满足两种或多种类型
   - 类型别名`type`
 
     - 当想要多次使用在类型注解中编写的同一种类型时,需要重复编写多次,于是可以使用类型别名定义一次类型,多次使用
@@ -246,6 +248,32 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
        4. `interface`可以被类实现
 
     3. 所以一般开发过程中声明对象类型时候用`interface`,其他时候用`type`
+
+  - 类型断言`as`
+    - 有时候 TS 无法获取具体的类型信息,这时候需要使用类型断言
+      - 比如通过 document.getElementById, TS 只知道该函数会返回 HTMLElement,但不知道返回的具体类型
+    - 但是 TS 只允许断言成更具体的类型,或不具体(`any`/`unkonwn`)的类型(由大到小,由小到大,尤其由小到大不能丢弃小)
+  - 非空类型断言
+
+    ```ts
+    interface Obj {
+      foo: number
+      bar?: {
+        a: number
+      }
+    }
+
+    const obj: Obj = {
+      foo: 1,
+    }
+    // 访问:可选链调用
+    console.log(obj.bar?.a)
+
+    // 属性赋值:此时不能用可选链
+    // 方式一:类型缩小
+    // 方式二:非空类型断言(有点危险,比如此时就没有a这个属性)
+    obj.bar!.a = 123
+    ```
 
 ### TypeScript 的类型推导
 

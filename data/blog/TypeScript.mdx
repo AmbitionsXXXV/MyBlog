@@ -103,17 +103,47 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
 
 - 函数定义类型
 
-  ```ts
-  // function sum(num1: xxx, num2: xxx): void {}
-  // xxx 代表函数行参所接受的类型,即传递实参必须遵守该类型
-  // void 表示函数没有返回值,同理可以设置为 number 等基础类型
-  function sum(num1: number, num2: number): void {}
+  - 函数类型表达书
 
-  // 另一种方式
-  // 因为函数也是一种对象,所以可以直接赋值一种类型
-  type FooType = () => void
-  const foo: FooType = () => {}
-  ```
+    ```ts
+    // function sum(num1: xxx, num2: xxx): void {}
+    // xxx 代表函数行参所接受的类型,即传递实参必须遵守该类型
+    // void 表示函数没有返回值,同理可以设置为 number 等基础类型
+    function sum(num1: number, num2: number): void {}
+
+    // 另一种方式
+    // 因为函数也是一种对象,所以可以直接赋值一种类型
+    type FooType = (num1: number, num2: number) => void
+
+    function calc(fn: Footype) {
+      console.log(fn(10969, 3636))
+    }
+
+    const foo: FooType = (num1: number, num2: number) => {}
+    ```
+
+  - 调用签名
+
+    - 从对象角度来看待一个函数，也可以有其他属性
+
+      ```ts
+      interface Foo {
+        name: string
+        age: number
+        // 函数可以调用: 函数调用签名
+        (num1: number): number
+      }
+
+      const foo: Foo = (num1: number): number => {
+        return 109696
+      }
+      foo.name = 'oor'
+      foo.age = 3636
+      ```
+
+  - 如何选择怎么定义函数类型
+    1. 如果只是描述函数类型本身(函数可以被调用),使用函数类型表达式
+    2. 如果在描述函数作为对象可以被调用,同时也有其他属性时,使用函数调用签名
 
 - TS 的特殊类型
 

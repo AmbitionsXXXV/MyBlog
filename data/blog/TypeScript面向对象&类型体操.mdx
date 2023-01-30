@@ -1,0 +1,81 @@
+---
+title: TypeScript的笔记
+date: '2023-1-28'
+tags: ['TypeScript', '面向对象']
+draft: false
+summary: '总结下TypeScript使用面向对象,etc...'
+authors: ['default']
+---
+
+# TypeScript 面向对象
+
+## TypeScript 的类
+
+- TypeScript 作为 JavaScript 的超集,也是支持使用 class 关键字的,并且还可以对属性和方法进行静态检测
+
+  ```ts
+  // 基本使用
+  class Band {
+    // 成员属性: ts需要声明成员属性
+    member: string = ''
+
+    constructor(member: string) {
+      this.member = member
+    }
+
+    live() {
+      console.log('Live Tour')
+    }
+  }
+
+  const vocal = new Band('taka')
+  ```
+
+- 类的成员修饰符
+  - `pubilc`修饰在任何地方可见、公有的属性或方法
+  - `private`修饰仅在同一类中可见、私有的属性或方法
+  - `protected`修饰仅在类自身及子类中可见、受保护的属性或方法
+  - `readonly`只允许读取,不能修改
+- 抽象类`abstract`
+  - 面向对象中,继承是多态的前提,而在定义很多通用的调用接口时,通常会让调用者传入父类，通过多态来实现更加灵活的调用方式
+  - 但有时父类本身可能并不需要对某些方法进行具体的实现，所以父类中定义的方法，可以定义为抽象方法
+  - 父类声明一个方法，不写实现，让子类根据具体情况继承该方法后编写实现
+  - 同时，抽象方法必须出现在抽象类中，且子类必须实现抽象方法
+- 接口中的继承特性
+
+  ```ts
+  interface Band {
+    vocal: string
+    guitar: string
+  }
+
+  interface Member extends Band {
+    name: string
+  }
+  ```
+
+- 接口中的类实现过程
+
+  ```ts
+  interface Band {
+    name: string
+    tour: () => string
+  }
+  interface Member {
+    vocal: string
+  }
+  // 作用：接口被类实现
+  // 一个类可以实现多个接口
+  class OOR implements Band, Member {
+    name: string
+    vocal: string
+
+    tour() {
+      return 'Dome Tour'
+    }
+  }
+  ```
+
+- 枚举类型
+
+# TypeScript 的模块

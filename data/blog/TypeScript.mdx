@@ -1,7 +1,7 @@
 ---
 title: TypeScript的笔记
 date: '2023-1-26'
-lastmod: '2023-1-27'
+lastmod: '2023-1-28'
 tags: ['TypeScript', 'blog']
 draft: false
 summary: '总结下大致自己用过的TypeScript的语法,然后说说自己对TS的一些优势的理解,etc...'
@@ -50,15 +50,15 @@ authors: ['default']
 
 - 字符串类型和数字类型
 
-```ts
-let band: string = 'OOR' // 描述类型时用字符串类型用首字母小写的 string
-let count: number = 10969 // 数字类型
-// 在 TS 中 undefined 和 null各自的类型也是 undefined 和 null,意味着他们既
-// 是实际的值也是自己的类型(有点字面量类型的意思)
-let und: undefined = undefined
-let n: null = null
-const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
-```
+  ```ts
+  let band: string = 'OOR' // 描述类型时用字符串类型用首字母小写的 string
+  let count: number = 10969 // 数字类型
+  // 在 TS 中 undefined 和 null各自的类型也是 undefined 和 null,意味着他们既
+  // 是实际的值也是自己的类型(有点字面量类型的意思)
+  let und: undefined = undefined
+  let n: null = null
+  const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
+  ```
 
 - 数组类型
 
@@ -104,17 +104,68 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
 
 - 函数定义类型
 
-  ```ts
-  // function sum(num1: xxx, num2: xxx): void {}
-  // xxx 代表函数行参所接受的类型,即传递实参必须遵守该类型
-  // void 表示函数没有返回值,同理可以设置为 number 等基础类型
-  function sum(num1: number, num2: number): void {}
+  - 函数类型表达式
 
-  // 另一种方式
-  // 因为函数也是一种对象,所以可以直接赋值一种类型
-  type FooType = () => void
-  const foo: FooType = () => {}
-  ```
+    ```ts
+    // function sum(num1: xxx, num2: xxx): void {}
+    // xxx 代表函数行参所接受的类型,即传递实参必须遵守该类型
+    // void 表示函数没有返回值,同理可以设置为 number 等基础类型
+    function sum(num1: number, num2: number): void {}
+
+    // 另一种方式
+    // 因为函数也是一种对象,所以可以直接赋值一种类型
+    type FooType = (num1: number, num2: number) => void
+
+    function calc(fn: Footype) {
+      console.log(fn(10969, 3636))
+    }
+
+    const foo: FooType = (num1: number, num2: number) => {}
+    ```
+
+  - 调用签名
+
+    - 从对象角度来看待一个函数，也可以有其他属性
+
+      ```ts
+      interface Foo {
+        name: string
+        age: number
+        // 函数可以调用: 函数调用签名
+        (num1: number): number
+      }
+
+      const foo: Foo = (num1: number): number => {
+        return 109696
+      }
+      foo.name = 'oor'
+      foo.age = 3636
+      ```
+
+  - 如何选择怎么定义函数类型
+    1. 如果只是描述函数类型本身(函数可以被调用),使用函数类型表达式
+    2. 如果在描述函数作为对象可以被调用,同时也有其他属性时,使用函数调用签名
+  - 函数参数类型
+    - 函数的参数可以有默认值
+      1. 有默认值的情况下，参数的类型注解可以省略
+      2. 有默认值的参数是可以接收一个 undefined 的值
+    - 剩余参数
+      ```ts
+      function sum(...nums: number[]) {
+        let total = 0
+        for (const num of nums) total += num
+        return total
+      }
+      ```
+  - 对象/函数中的 this
+    - 通过 tsconfig.json 中的一个配置开启是否支持模糊 this 指向
+      ```tsconfig.json
+      "noImplicitThis": true // 默认为false,开启为true
+      ```
+    - TS 内置的两种 this 工具(都是通过泛型使用)
+      - `ThisParameterType`:获取 FooType 类型中 this 的类型`ThisParameterType<FooType>`
+      - `OmitThisParameterType`:删除 this 参数类型,剩余的参数类型`OmitThisParameterType<FooType>`
+      - `ThisType`
 
 - TS 的特殊类型
 
@@ -276,11 +327,17 @@ const height = 1.85 // 此时 height 的类型为 1.85,成为字面量类型
     obj.bar!.a = 123
     ```
 
+  - 类型缩小
+    - typeof
+    - switch
+    - instanceof
+
 ### TypeScript 的类型推导
 
-```ts
-// 声明一个标识符时,如果有进行赋值,会根据赋值的类型推导出标识符的类型注解
-let singer = 'aimyon'
-singer = 'taka' // singer 类型是 string
-singer = 3636 // 会报错,不能将 number 类型赋值给 string 类型
-```
+- 案例：
+  ```ts
+  // 声明一个标识符时,如果有进行赋值,会根据赋值的类型推导出标识符的类型注解
+  let singer = 'aimyon'
+  singer = 'taka' // singer 类型是 string
+  singer = 3636 // 会报错,不能将 number 类型赋值给 string 类型
+  ```

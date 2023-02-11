@@ -1,0 +1,56 @@
+---
+title: TypeScript实现Queue队列结构
+date: '2023-2-11'
+tags: ['TypeScript', 'Queue', '数据结构']
+draft: false
+summary: '总结下TypeScript使用面向对象,etc...'
+authors: ['default']
+---
+
+# Queue
+
+## 特点：
+
+- 先进先出
+
+- 删除在头，插入在尾
+
+```ts
+interface IList<T> {
+  // peek
+  peek(): T | undefined
+  // 判断是否为空
+  isEmpty(): boolean
+  // 元素个数
+  // get size(): number // 加了get关键字后调用size方法时，不用queue.size(),而可以直接queue.size直接调用
+  size(): number
+}
+
+interface IQueue<T> extends IList<T> {
+  // 入队方法
+  enqueue(element: T): void
+  // 出队方法
+  dequeue(): T | undefined
+}
+
+class ArrayQueue<T> implements IQueue<T> {
+  // 通过数组保存
+  private data: T[] = []
+
+  enqueue(element: T): void {
+    this.data.push(element)
+  }
+  dequeue(): T | undefined {
+    return this.data.shift()
+  }
+  peek(): T | undefined {
+    return this.data[0]
+  }
+  isEmpty(): boolean {
+    return this.data.length === 0
+  }
+  size(): number {
+    return this.data.length
+  }
+}
+```

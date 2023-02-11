@@ -1,11 +1,9 @@
 const projectsData = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
+    title: 'Etc blog site',
+    description: `个人博客网站，发点疯，上传点笔记`,
     imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
+    href: 'https://my-blog-h1m4zpjq7-ambitionsxxxv.vercel.app/',
   },
 ]
 

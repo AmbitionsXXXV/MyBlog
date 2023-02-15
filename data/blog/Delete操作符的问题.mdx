@@ -1,0 +1,35 @@
+---
+title: 为什么不建议使用delete删除对象属性
+date: '2023-2-15'
+tags: ['V8 Engine', 'JavaScript']
+draft: false
+summary: '结合V8引擎的快属性、慢属性理解为什么需要谨慎使用delete操作符'
+authors: ['default']
+---
+
+# 为什么不建议使用 delete 删除对象属性
+
+首先 MDN 的网站中是这样描述 delete 的: delete 操作符用于删除对象的某个属性；如果没有指向这个属性的引用，那它最终会被释放。
+
+举个例子：
+
+```js
+function Creator() {
+  this.prop = 'prop'
+}
+creator.prototype.prop = 'prop'
+let creator = new Creator()
+delete creator.prop
+console.log(creator.prop) // 仍然会通过原型链取到 prop 值，从而打印出来
+```
+
+同时因为 V8 引擎中 elemens(key 为数字) 和 properties(key 为字符串) 的不同存储方式,properties 中默认十个(内属性)仍然在对象内存下存放,然后数量少由线性排列存放在 properties 属性下,过多占用则以字典形式存储
+
+快属性:elements 和内属性
+慢属性:properties
+
+通过开头引用 MDN 描述,可以预想,若是对于在线性表存放的对象属性,使用 delete 操作后,不会释放该内存,从而会破坏线性表结构.影响查询性能
+
+## 建议使用赋值为 undefined 删除对象属性
+
+不仅可以做到同使用 delete 操作符下的同样结果,还能阻止通过原型链查找

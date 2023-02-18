@@ -1,0 +1,99 @@
+---
+title: Express使用(一)
+date: '2023-2-17'
+tags: ['express', 'node.js', 'JavaScript']
+draft: false
+summary: 'express笔记系列'
+authors: ['default']
+---
+
+<div className="text-2xl text-cyan-300">首先介绍原生基于node.js中http模块开启服务</div>
+
+```js
+const http = require('http')
+
+// 创建一个服务器
+const server = http.createServer((request, response) => {
+  res.end('ONE OK ROCK')
+})
+
+// 开启对应服务器，并监听对应端口
+// 端口通常1025～65535之间
+server.listen(3000, () => {
+  console.log('http server success')
+})
+```
+
+<div className="text-2xl text-cyan-300">同样使用express开一个服务对比</div>
+
+```js
+// express 基本启动服务
+const express = require('express')
+
+const app = express()
+
+app.listen(3000, () => {
+  console.log('express服务启动成功')
+})
+```
+
+<p>express优化部分</p>
+
+- express 对比 http 服务在路由上不用通过 request 对象的 url 属性进行判断
+
+```js
+// http 中
+const server = http.createServer((request, response) => {
+  const url = req.url
+  const method = req.method
+
+  if (url === '/login' && method === 'POST') res.end('Loign')
+})
+
+// express 直接监听路由以及请求方法
+app.post('/login', (request, respose, next) => {
+  res.end('登录成功')
+})
+
+// 也可以通过常规中间件
+app.use((req, res, next) => {
+  if (req.url === '/login') res.end('登录成功')
+})
+
+// 路径匹配中间件
+// 只会限制路径，对请求方法没有限制
+app.use('/login', (req, res, next) => {
+  // 同样可以通过req.method限制请求方法
+  res.end('登录成功')
+})
+
+// express 中
+```
+
+<p>多个中间件的注册方式</p>
+```js
+app.get(
+  "/",
+  (req, res, next) => {
+    console.log("aaa");
+    // next 和终止操作不能同时存在，如：res.end(),res.send()
+    next();
+  },
+  (req, res, next) => {
+    res.send("<p>Second 2</p>");
+  }
+);
+```
+
+<div className="text-2xl text-cyan-300">
+  express简介:express是一个路由和中间件的Web框架,本身功能有限;而其本质上是一系列中间件函数的调用
+</div>
+
+<div className="text-xl text-cyan-300">
+  中间件的本质是传递给express的一个回调函数：共接收三个参数
+  <ul>
+    <li>request对象</li>
+    <li>response对象</li>
+    <li>nest函数(在express中定义的用于执行下一个中间件的函数)</li>
+  </ul>
+</div>

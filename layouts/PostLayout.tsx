@@ -98,7 +98,7 @@ export default function PostLayout({
                         <dd>
                           {author.github && (
                             <Link
-                              href={author.email}
+                              href={author.github}
                               className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
                             >
                               {author.github.replace(

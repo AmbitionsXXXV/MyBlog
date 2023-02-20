@@ -1,0 +1,120 @@
+---
+title: Express对比Koa
+date: 2023-02-20T17:39:14Z
+tags: ['express', 'node.js', 'JavaScript', 'koa']
+draft: false
+summary: '从同步异步执行方面解析express和koa的差别,以及为什么只有koa符合洋葱模型'
+authors: ['default']
+---
+
+# 同步状态下两个框架其实会一样有‘洋葱模型’的最外层到最里层到最外层
+
+## 但是异步状态下 express 不会,express 的异步中间件只会在最后执行
+
+### 首先明确一个区别:
+
+- express 中 next()函数返回值:`next: NextFunction (err?: any) => void (+2 overloads)`
+
+- 而 koa 中 next()函数返回值:`next: () => Promise<any>`
+
+<p className="text-xl text-cyan-300">
+  同时因为express中,next()函数返回空值,同时express中的res.send()/res.json()一执行就会结束,所以只能在最后一个中间件执行后就结束
+</p>
+
+<p className="text-xl text-cyan-300">最本质区别先提出后,我们看看express执行异步代码</p>
+
+```js:express异步.js
+const express = require('express')
+const axios = require('axios')
+
+// 创建app对象
+const app = express()
+
+// 编写中间件
+app.use(async (req, res, next) => {
+  console.log('express middleware01')
+  req.msg = 'aaa'
+  await next()
+  // 返回值结果
+  // res.json(req.msg)
+})
+
+app.use(async (req, res, next) => {
+  console.log('express middleware02')
+  req.msg += 'bbb'
+  await next()
+})
+
+// 执行异步代码
+app.use(async (req, res, next) => {
+  console.log('express middleware03')
+  // 一些异步请求
+  const resData = await axios.get('http://xxxx')
+  req.msg += resData.data
+
+  // 只能在这里返回结果
+  res.json(req.msg)
+})
+
+
+// 启动服务器
+app.listen(3000, () => {
+  console.log('express服务器启动成功~')
+})
+```
+
+<p className="text-xl text-cyan-300">
+  koa中,因为next()函数返回Promise对象,且ctx.body不具备res.send()/res.json()终止中间件运行的能力
+</p>
+
+```js:koa异步执行.js
+
+const Koa = require("koa"); const axios = require("axios");
+
+const app = new Koa();
+
+// koa 对比 express
+// koa next: () => Promise<any> (洋葱模型)
+// express next: NextFunction (err?: any) => void (+2 overloads)
+// 所以 express 不能像 koa 一样异步执行
+app.use(async (ctx, next) => {
+console.log("koa middleware 01");
+ctx.msg = "aaa";
+await next();
+
+// 返回结果
+ctx.body = ctx.msg;
+});
+
+app.use(async (ctx, next) => {
+console.log("koa middleware 02");
+
+ctx.msg += "bbb";
+
+// 如果执行的下一个中间件是一个异步函数，那么 next 默认不会等到中间件的结果，就会执行下一步操作
+// 但是通常我们希望他等到我们有结果
+// next();
+
+// 解决办法
+await next();
+
+console.log("-------");
+});
+
+app.use(async (ctx, next) => {
+console.log("koa middleware 03");
+
+const res = await axios.get("http://xxx");
+
+ctx.msg += res.data;
+});
+
+app.listen(8001, () => {
+console.log("Koa server successfully listening");
+});
+
+```
+
+<p className="text-xl text-cyan-300">异步下的 koa 洋葱模型</p>
+
+![异步下的koa洋葱模型](/blog/洋葱模型.png '异步下的koa洋葱模型')

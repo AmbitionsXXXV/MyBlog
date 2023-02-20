@@ -1,0 +1,139 @@
+---
+title: Express使用(二)
+date: '2023-2-20'
+tags: ['express', 'node.js', 'JavaScript', 'koa']
+draft: false
+summary: 'express笔记系列:文件上传,并对比http、koa、express三种方式'
+authors: ['default']
+---
+
+<div className="text-2xl text-cyan-300">首先介绍原生基于node.js中http模块上传文件</div>
+
+<div className="text-xl text-cyan-300">通过手动对接口返回数据流进行字符串剪切解析</div>
+
+```js
+const http = require('http') const fs = require('fs')
+
+// 创建一个服务器
+const server = http.createServer((req, res) => {
+// 设置为二进制格式数据
+req.setEncoding('binary')
+
+const boundary = req.headers['content-type'].split('; ')[1].replace('boundary=', '')
+
+// 因为客户端传递的数据是表单数据(请求体)
+let formData = ''
+req.on('data', (data) => {
+console.log(data)
+formData += data
+})
+
+req.on('end', () => {
+console.log(formData)
+const imgType = 'image/png'
+const position = formData.indexOf(imgType) + imgType.length
+let imageData = formData.substring(position)
+
+    // imageData开始位置会有两个空格
+    imageData = imageData.replace(/^\s\s*/, '')
+
+    // 替换最后的 boundary
+    imageData = imageData.substring(0, imageData.indexOf(`--${boundary}--`))
+
+    fs.writeFile('./client.png', imageData, 'binary', () => {
+      console.log('文件上传成功')
+      res.end('文件上传完毕')
+    })
+
+})
+})
+
+server.listen(3000, () => {
+console.log('localhost:3000 server success')
+})
+
+```
+
+<div className="text-xl text-cyan-300">express实现文件上传</div>
+
+```js
+const express = require('express')
+const multer = require('multer')
+
+const app = express()
+const port = 3000
+
+// 注意最后生成的文件是可以浏览的，但是windows电脑上可能会因为没有后缀格式而无法查看，mac可以直接查看
+// vscode中同样会因为没有后缀无法查看，可以手动添加后缀查看
+
+// 使用一个 express 官方的中间件
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, callback) {
+      callback(null, './uploads')
+    },
+    filename(req, file, callback) {
+      callback(null, Date.now() + '_' + file.originalname)
+    },
+  }),
+})
+// 单文件上传  singer()
+// upload.single(文件名) 客户端请求时文件的 key 值
+app.post('/upload', upload.single('avatar'), (req, res, next) => {
+  console.log(req.file)
+
+  res.send('Hello World!')
+})
+
+app.post('/upload_files', upload.array('photos'), (req, res, next) => {
+  console.log(req.files)
+
+  res.send('上传成功!')
+})
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+```
+
+<div className="text-xl text-cyan-300">koa实现文件上传</div>
+
+```js
+const Koa = require('koa')
+const KoaRouter = require('@koa/router')
+const multer = require('@koa/multer')
+
+const app = new Koa()
+const files = multer({
+  storage: multer.diskStorage({
+    destination(req, file, callback) {
+      callback(null, './uploads')
+    },
+    filename(req, file, callback) {
+      callback(null, Date.now() + '_' + file.originalname)
+    },
+  }),
+})
+
+const userRouter = new KoaRouter({ prefix: '/upload' })
+
+// 单文件
+userRouter.post('/file', files.single('avatar'), (ctx, next) => {
+  console.log(ctx.request.file)
+
+  ctx.body = 'form数据上传成功'
+})
+
+// post/form-data(file)
+// 多文件
+userRouter.post('/files', files.array('avatar'), (ctx, next) => {
+  console.log(ctx.request.files)
+
+  ctx.body = 'form数据上传成功'
+})
+
+app.use(userRouter.routes())
+app.use(userRouter.allowedMethods())
+
+app.listen(8000, () => {
+  console.log('Koa server successfully listening')
+})
+```

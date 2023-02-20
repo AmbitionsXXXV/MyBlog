@@ -66,23 +66,22 @@ app.use('/login', (req, res, next) => {
   // 同样可以通过req.method限制请求方法
   res.end('登录成功')
 })
-
-// express 中
 ```
 
 <p>多个中间件的注册方式</p>
+
 ```js
 app.get(
-  "/",
+  '/',
   (req, res, next) => {
-    console.log("aaa");
+    console.log('aaa')
     // next 和终止操作不能同时存在，如：res.end(),res.send()
-    next();
+    next()
   },
   (req, res, next) => {
-    res.send("<p>Second 2</p>");
+    res.send('<p>Second 2</p>')
   }
-);
+)
 ```
 
 <div className="text-2xl text-cyan-300">

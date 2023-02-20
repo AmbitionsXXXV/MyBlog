@@ -108,10 +108,11 @@ console.log(foo.name) // oor
 ##### ES Module 的解析流程
 
 - ES Module 的解析过程可以划分为三个阶段：
-  - 阶段一：构建（Construction），根据地址查找 js 文件，并且下载，将其解析成模块记录（Module Record）
-  - 阶段二：实例化（Instantiation），对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向
+
+  - 阶段一:构建(Construction),根据地址查找 js 文件,并且下载,将其解析成模块记录(Module Record)
+  - 阶段二:实例化(Instantiation),对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向
     对应的内存地址
-  - 阶段三：运行（Evaluation），运行代码，计算值，并且将值填充到内存地址中
+  - 阶段三:运行(Evaluation),运行代码，计算值，并且将值填充到内存地址中
 
     ![import解析过程](/blog/import解析过程.png 'import解析过程')
 
@@ -161,7 +162,7 @@ console.log(foo.name) // oor
   - Less 和 Sass 等预处理器的处理
   - 使用 css-loader
 
-    - ````js
+    - ```js
         // webpack.config.js 配置
         // npm i css-loader -D
         module:{
@@ -173,7 +174,6 @@ console.log(foo.name) // oor
         }
       }
       ```
-      ````
 
     - 但是 css-loader 只负责将.css 文件进行解析,并不会把解析后的 css 插入到页面中
 
@@ -181,7 +181,7 @@ console.log(foo.name) // oor
 
     - 使用
 
-    ````js
+    ```js
       // webpack.config.js 配置
       // npm i css-loader -D
       module:{
@@ -194,8 +194,7 @@ console.log(foo.name) // oor
           ]
         }
       }
-      ```
-    ````
+    ```
 
 - 资源文件 img 和 font:
   - 图片 img 文件的加载
@@ -204,15 +203,15 @@ console.log(foo.name) // oor
   - 打包 HTML 资源文件
 - 处理 vue 项目的 SFC 文件.vue 文件
 
-```npm
+```shell
 npx webpack --entry ./src/main.js //修改webpack打包入口文件获取路径,默认为index.js
 ```
 
-```npm
+```shell
 npx webpack --output-filename bundle.js // 修改打后文件夹内部文件名,默认为main.js
 ```
 
-```npm
+```shell
 npx webpack --output-path ./build // 修改打包后的文件名,默认为dist
 ```
 

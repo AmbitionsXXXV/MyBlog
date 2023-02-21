@@ -1,0 +1,74 @@
+---
+title: MySQL
+date: '2023-02-21'
+tags: ['MySQL', 'shell', 'SQL']
+draft: false
+summary: 'MySQL语句的指令笔记'
+authors: ['default']
+---
+
+# DDL 语句:数据定义语言
+
+<p className="text-2xl text-cyan-300">
+  可以通过DDL语句对数据库或者表进行创建、删除、修改等操作
+</p>
+
+<p className="text-xl text-cyan-300">查看当前所有数据库/表</p>
+
+```sql
+-- 查看所有数据库
+SHOW DATABASES;
+-- 查看当前数据库中有哪些表
+SHOW TABLES;
+```
+
+<p className="text-xl text-cyan-300">使用某一个数据库</p>
+
+```sql
+USE xxxxxx;
+```
+
+<p className="text-xl text-cyan-300">查看当前正在使用的数据库</p>
+
+```sql
+SELECT DATABASE();
+```
+
+<p className="text-xl text-cyan-300">创建一个新的数据库/表</p>
+
+```sql
+CREATE DATABASE IF NOT EXISTS xxxxxx;
+-- 创建一张最基本的表
+-- 已经存在表users再运行会报错
+-- CREATE TABLE `users`(
+--   name VARCHAR(10),
+--   age INT,
+--   height DOUBLE
+--   )
+CREATE TABLE IF NOT EXISTS `users`(
+  name VARCHAR(10),
+  age INT,
+  height DOUBLE
+  )
+```
+
+<p className="text-xl text-cyan-300">删除某一个数据库/表</p>
+
+```sql
+-- DROP DATABASE xxxxxx;
+DROP DATABASE IF EXISTS xxxxxx;
+-- 删除表
+DROP TABLE IF EXISTS `xxxxxx`;
+```
+
+<p className="text-xl text-cyan-300">修改数据库的字符集和排序规则</p>
+
+```sql
+ALTER DATABASE xxxxxx CHARACTER SET = utf8 COOLATE = utf8_unicode_ci;
+```
+
+<p className="text-xl text-cyan-300">查看某一张表的表结构</p>
+
+```sql
+DESC t_singer;
+```

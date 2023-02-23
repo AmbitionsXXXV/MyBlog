@@ -1,0 +1,34 @@
+---
+title: 冒泡排序笔记以及实现
+date: '2023-02-23'
+tags: ['TypeScript', '排序算法', '冒泡排序']
+draft: false
+summary: '介绍冒泡排序并基于TypeScript实现冒泡排序'
+authors: ['default']
+---
+
+## 思路
+
+- 通过两两比较相邻的元素并交换他们的位置,从而使整个序列按顺序排列
+
+- 一次冒泡排序后,最大值总会移到数组最后面,所以下一次冒泡排序后,该最大值就不用参加比较
+
+- 然后一直递归该过程,完成排序
+
+```ts:bubbleSort.ts
+// 第一版(强硬版)
+function bubbleSort(arr: number[]): number[] {
+  const n = arr.length
+
+  for (let i = 0; i < n ; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        // ES6的新语法
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]
+      }
+    }
+  }
+
+  return arr
+}
+```

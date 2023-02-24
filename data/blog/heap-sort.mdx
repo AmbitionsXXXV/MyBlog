@@ -1,0 +1,73 @@
+---
+title: 快速排序笔记以及实现
+date: 2023-02-24T15:32:42Z
+tags: ['TypeScript', '排序算法', '堆排序']
+draft: false
+summary: '堆排序并基于TypeScript实现快速排序'
+authors: ['default']
+---
+
+## 介绍堆排序
+
+堆排序是一种基于比较的排序算法,核心是使用二叉堆来维护一个有序序列
+
+- 二叉堆:
+
+  - 二叉堆是一种完全二叉树,其中每个节点都满足父节点比子节点大(小)的条件
+
+  - 堆排序中使用最大堆来进行排序,即每个节点都比他的子节点大
+
+## 实现思路
+
+- 首先构建一个最大堆
+
+- 将堆的根节点与堆的最后一个元素交换
+
+- 接着将堆的大小减一,并将剩余的元素重新构建为一个最大堆
+
+- 然后重复这个操作
+
+```ts:heapSort.ts
+function heapSort(arr: number[]): number[] {
+  const len = arr.length;
+
+  // 原地建堆
+  const start = Math.floor(len / 2 - 1);
+  for (let i = start; i >= 0; i--) {
+    // 下滤操作
+    heapifyDown(arr, len, i);
+  }
+
+  // 对最大堆进行排序
+  for (let i = len - 1; i > 0; i--) {
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    heapifyDown(arr, i, 0);
+  }
+
+  return arr;
+}
+
+function heapifyDown(arr: number[], len: number, index: number) {
+  while (2 * index + 1 < len) {
+    // 获取左右子节点的索引
+    const leftChild = 2 * index + 1;
+    const rightChild = 2 * index + 2;
+
+    // 找出更大的值
+    let larger = leftChild;
+    if (rightChild < len && arr[rightChild] > arr[leftChild]) {
+      larger = rightChild;
+    }
+
+    // 判断index位置的值比更大的子节点大
+    if (arr[index] >= arr[larger]) break;
+
+    [arr[index], arr[larger]] = [arr[larger], arr[index]];
+    index = larger;
+  }
+}
+```
+
+## 时间复杂度分析
+
+O(nlogn)

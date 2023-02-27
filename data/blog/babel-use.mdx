@@ -7,37 +7,11 @@ summary: '工程化下babel使用'
 authors: ['default']
 ---
 
-## 首先借用 babel 官网的一句话`Babel is a JavaScript compiler`
-
-展示下一般情况下 babel 的配置,当然我们一般在 babel.config.js 文件下配置 babel
-
-```js:babel.config.js
-module.exports = {
-  // babel 本身不具有任何转化功能，我们要的代码要转换某些功能，比如将es6转换为es5，我们就需要下载相应的插件，并且将这些插件配置到。babelrc文件的plguins里面
-  // plugins: [
-  //    解析箭头函数转换为普通函数
-  //   "@babel/plugin-transform-arrow-functions",
-  //   "@babel/plugin-transform-block-scoping"
-  // ]
-  presets: [
-    ["@babel/preset-env", {
-      // 在开发中针对babel的浏览器兼容查询使用browserslist工具, 而不是设置target
-      // 因为browserslist工具, 可以在多个前端工具之间进行共享浏览器兼容性(postcss/babel)
-      // targets: ">5%"
-      // corejs: 3,
-      // // false: 不使用polyfill进行填充
-      // useBuiltIns: "entry"
-    }],
-    ["@babel/preset-react"],
-    ["@babel/preset-typescript", {
-      corejs: 3,
-      useBuiltIns: "usage"
-    }]
-  ]
-}
-```
+## webpack 使用 babel
 
 而同时 webpack 使用 babel 解析的配置如下(使用 react 情况)
+
+其中 babel 下的 options 一般可以抽取到 babel.config.js 中
 
 ```js:webpack.config.js
 const path = require('path')
@@ -90,6 +64,36 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html'
     })
+  ]
+}
+```
+
+## 首先借用 babel 官网的一句话`Babel is a JavaScript compiler`
+
+展示下一般情况下 babel 的配置,当然我们一般在 babel.config.js 文件下配置 babel
+
+```js:babel.config.js
+module.exports = {
+  // babel 本身不具有任何转化功能，我们要的代码要转换某些功能，比如将es6转换为es5，我们就需要下载相应的插件，并且将这些插件配置到。babelrc文件的plguins里面
+  // plugins: [
+  //    解析箭头函数转换为普通函数
+  //   "@babel/plugin-transform-arrow-functions",
+  //   "@babel/plugin-transform-block-scoping"
+  // ]
+  presets: [
+    ["@babel/preset-env", {
+      // 在开发中针对babel的浏览器兼容查询使用browserslist工具, 而不是设置target
+      // 因为browserslist工具, 可以在多个前端工具之间进行共享浏览器兼容性(postcss/babel)
+      // targets: ">5%"
+      // corejs: 3,
+      // // false: 不使用polyfill进行填充
+      // useBuiltIns: "entry"
+    }],
+    ["@babel/preset-react"],
+    ["@babel/preset-typescript", {
+      corejs: 3,
+      useBuiltIns: "usage"
+    }]
   ]
 }
 ```

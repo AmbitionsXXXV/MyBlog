@@ -1,0 +1,129 @@
+---
+title: Rust入门笔记(二)
+date: '2023-2-28'
+tags: ['Rust', 'Rust入坑系列']
+draft: false
+summary: 'Rust变量&变量声明'
+authors: ['default']
+---
+
+# Rust 变量常量&数据类型
+
+## Rust 使用 `let` 声明变量
+
+变量就先不陈述了,老生常谈,学习各种语言都会说一遍变量
+
+使用 `let` 声明的变量默认是不可变的
+
+```rust
+fn main() {
+    let band = "one ok rock";
+
+    band = "aimyon";
+}
+```
+
+上侧代码`cargo run`会报错如下
+![](/blog/varError.png)
+
+### 解决方法:使用`mut(mutable)`关键字
+
+```rust
+fn main() {
+    let mut band = "one ok rock";
+
+    // 同时字符串占位这方面类似于 Python
+    println!("hello {}", band);
+
+    band = "aimyon";
+
+    println!("hello {}", band);
+}
+```
+
+#### 声明而未使用的变量
+
+```rust
+fn main() {
+  // let mut singer = "aimyon";
+  // cargo run/build 会提示singer变量声明未使用
+  // 所以rust支持给变量加 _ 忽略
+  let mut _singer = "aimyon";
+}
+```
+
+## 变量与常量(使用`const`声明)
+
+- 常量:常量在绑定值以后也是不可变的,但是他与不可变的变量有很多区别:
+  - 不可以使用`mut`关键字,常量永远不可变 🙅
+  - 声明常量使用`const`关键字,同时必须标注类型
+  - 常量可以在任何作用域内进行声明,包括全局作用域
+  - 常量只可以绑定到常量表达式,无法绑定到函数的调用结果或只能在运行时才能计算出的值
+- 在程序运行期间,常量在其声明的作用域内一直有效
+- 命名规范:所有字母大写,每个单词使用下划线`_`分割
+
+## shadowing(Rust 语言圣经中翻译为:变量遮蔽,个人喜欢这种翻译)
+
+- 可以使用相同的变量名声明新的变量,新的变量就会 shadow(遮蔽)之前的同名变量
+
+  ```rust
+  fn main() {
+  // let x = 10969;
+  // let x = 3636;
+  // // 如果这样写 虽然后一个x已经遮蔽第一个x,但是rust会提示第一个x为使用
+  // println!("This number is {}", x);
+
+  let x = 10969;
+  let x = x + 3636;
+
+  printli!("This number is {}", x);
+  }
+  ```
+
+  - 在后续的代码中这个变量名代表的就是新的变量
+
+- ⚠️ 但是 ⚠️`shadow`和使用`mut`关键字的变量重新赋值不同:
+
+  - 给未使用`mut`关键字用`let`声明的变量重新赋值,会导致编译错误
+  - 而使用`let`声明的同名新变量(shadow 后的新变量)也是不可变的
+  - 使用`let`声明的同名新变量的类型可以和之前的不一样
+
+  ```rust
+  fn main() {
+    let vari = "vari"; // vari: &str
+    let vari = vari.len();  // vari: usize,因为len()返回一个整数
+
+    println!("variable {}", vari)
+  }
+  ```
+
+## 数据类型:
+
+- 标量和复合类型
+- Rust 是静态编译语言,在编译时必须知道所有变量的类型
+
+  - 基于使用的值,编译器通常能够推断出它的具体类型
+  - 但如果可能的类型比较多(例如入门(一)中猜数游戏使用的将 String 转为整数的 parse 方法),必须添加类型的标注,否则编译会报错
+
+  ```rust
+  fn main() {
+    {/* 因为parse返回类型Reasult 有error 所以必须使用expect对error情况处理 */}
+    {/* 因为42能用很多类型u32 i32等表示,所以如果不标注类型会报错 */}
+    let guess:u32 = '42'.parse().expect("It's not a number");
+    {/* type annotations needed */}
+    {/* let guess = '42'.parse().expect("It's not a number"); */}
+
+    println!("This number is {}", guess);
+  }
+  ```
+
+### 标量
+
+- 一个标量代表一个单个的值
+- `Rust `中有四个主要的标量类型:
+  - 整数类型
+    - 整数类型没有小数部分
+    - 例如上面例子中的 u32 就代表一个无符号的整数类型,占据 32 位空间
+  - 浮点类型
+  - 字符类型
+  - 布尔类型

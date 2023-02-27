@@ -1,0 +1,102 @@
+---
+title: 前端工程化--babel使用
+date: '2022-11-24'
+tags: ['前端工程化', 'blog', 'babel']
+draft: false
+summary: '工程化下babel使用'
+authors: ['default']
+---
+
+## 首先借用 babel 官网的一句话`Babel is a JavaScript compiler`
+
+展示下一般情况下 babel 的配置,当然我们一般在 babel.config.js 文件下配置 babel
+
+```js:babel.config.js
+module.exports = {
+  // babel 本身不具有任何转化功能，我们要的代码要转换某些功能，比如将es6转换为es5，我们就需要下载相应的插件，并且将这些插件配置到。babelrc文件的plguins里面
+  // plugins: [
+  //    解析箭头函数转换为普通函数
+  //   "@babel/plugin-transform-arrow-functions",
+  //   "@babel/plugin-transform-block-scoping"
+  // ]
+  presets: [
+    ["@babel/preset-env", {
+      // 在开发中针对babel的浏览器兼容查询使用browserslist工具, 而不是设置target
+      // 因为browserslist工具, 可以在多个前端工具之间进行共享浏览器兼容性(postcss/babel)
+      // targets: ">5%"
+      // corejs: 3,
+      // // false: 不使用polyfill进行填充
+      // useBuiltIns: "entry"
+    }],
+    ["@babel/preset-react"],
+    ["@babel/preset-typescript", {
+      corejs: 3,
+      useBuiltIns: "usage"
+    }]
+  ]
+}
+```
+
+而同时 webpack 使用 babel 解析的配置如下(使用 react 情况)
+
+```js:webpack.config.js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+  mode: 'development',
+  devtool: false,
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, './build'),
+    filename: 'bundle.js',
+    // 重新打包时, 先将之前打包的文件夹删除掉
+    clean: true
+  },
+  resolve: {
+    extensions: ['.js', '.json', '.wasm', '.jsx', '.ts']
+  },
+  module: {
+    rules: [
+      // 针对jsx?代码进行babel处理
+      {
+        test: /\.jsx?$/, // x?: 0或者1个x
+        // exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+        //   options: {
+        //     // plugins: [
+        //     //   "@babel/plugin-transform-arrow-functions",
+        //     //   "@babel/plugin-transform-block-scoping"
+        //     // ]
+        //     presets: [
+        //       ["@babel/preset-env", {
+        //         // 在开发中针对babel的浏览器兼容查询使用browserslist工具, 而不是设置target
+        //         // 因为browserslist工具, 可以在多个前端工具之间进行共享浏览器兼容性(postcss/babel)
+        //         // targets: ">5%"
+        //       }]
+        //     ]
+        //   }
+        }
+      },
+      {
+        test: /\.ts$/,
+        // use: "ts-loader"
+        use: 'babel-loader'
+      }
+    ]
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html'
+    })
+  ]
+}
+```
+
+## polyfill
+
+babel 默认只转换新的 JavaScript 语法,比如箭头函数、扩展运算(spread)
+不转换新的 API,例如 Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise 等全局对象,以及一些定义在全局对象上的方法(比如 Object.assign)都不会转译。如果想使用这些新的对象和方法,则需要为当前环境提供一个垫片(polyfill)
+Polyfill 主要有三种
+@babel/polyfill

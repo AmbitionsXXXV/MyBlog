@@ -1,0 +1,55 @@
+---
+title: Rust入门笔记(一)
+date: '2023-2-27'
+tags: ['Rust', 'Rust入坑系列', '堆排序']
+draft: false
+summary: 'Rust项目基本文件目录结构'
+authors: ['default']
+---
+
+## Cargo new xxx(项目名)
+
+使用该指令创建新的 Rust 项目
+
+## Cargo.toml
+
+- TOML 格式是 Cargo 的配置格式(类比于 node 下的 package.json)
+- [package] 是一个区域标题,表示下方内容是用来配置 package 的
+  - name: 项目名
+  - version: 项目版本
+  - authors: 项目作者
+  - edition: Rust 使用版本
+- [dependencies] 是另一个区域的开始,会列出项目的依赖项
+- 在 Rust 中,代码的包叫做 crate
+
+```toml
+[package]
+name = 'rust entry'
+version = '0.1.0'
+authors = ["etcetera <yilonglei790@gmail.com>"]
+edition = '2021'
+[dependencies]
+```
+
+## src/main.rs
+
+- Cargo 生成的 main.rs 在 src 目录下;Cargo.toml 在项目顶层下
+- 源代码都应该在 src 目录下
+- 顶层目录可以放置:README、许可信息、配置文件和其他与程序源码无关的文件
+- 如果创建项目时没有使用 Cargo,也可以将项目转化为使用 Cargo:
+  - 将项目程序源码放在 src 目录下
+  - 创建 Cargo.toml 并填写相应配置
+
+## 构建 Cargo 项目:cargo build
+
+- `cargo build` 执行后
+  - 创建可执行文件: `target/debug/rust_entry`或`target\debug\rust_entry(Windows)`
+  - 运行可执行文件: `./target/debug/rust_entry`或`.\target\debug\rust_entry(Windows)`
+- 第一次运行`cargo build`会在顶层目录生成 cargo.lock 文件(类比于 node 下 package-lock.json)
+  - 该文件负责追踪项目以来的准确版本
+  - 不需要手动修改该文件
+
+## 构建和运行 Cargo 项目:cargo run
+
+- `cargo run`:编译代码 + 运行结果
+  - 如果已经编译过,那么直接运行可执行二进制文件

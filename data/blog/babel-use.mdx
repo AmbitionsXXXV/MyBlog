@@ -133,3 +133,47 @@ app.listen(9000, () => {
   console.log('express proxy服务器开启成功')
 })
 ```
+
+然后完整展示下在 webpack 的 devSever 配置跨域解决方案
+
+```js:webpack.config.js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+  mode: 'development',
+  devtool: false,
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, './build'),
+    filename: 'bundle.js',
+    // 重新打包时, 先将之前打包的文件夹删除掉
+    clean: true
+  },
+  resolve: {
+    extensions: ['.js', '.json', '.wasm', '.jsx', '.ts']
+  },
+  devServer: {
+    static: ['public', 'content'],
+    // host: '0.0.0.0',
+    port: 3000,
+    open: true,
+    compress: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9000',
+        pathRewrite: {
+          '^/api': ''
+        },
+        changeOrigin: true
+      }
+    },
+    historyApiFallback: true
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html'
+    })
+  ]
+}
+```

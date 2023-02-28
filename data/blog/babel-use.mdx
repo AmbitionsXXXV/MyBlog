@@ -156,6 +156,7 @@ module.exports = {
   devServer: {
     static: ['public', 'content'],
     // host: '0.0.0.0',
+    // 本地项目对应端口
     port: 3000,
     open: true,
     compress: true,
@@ -165,6 +166,7 @@ module.exports = {
         pathRewrite: {
           '^/api': ''
         },
+        // 当服务器有端口校验时,将本地请求到代理服务器的host更改为target对应端口,所以尽量都开启
         changeOrigin: true
       }
     },

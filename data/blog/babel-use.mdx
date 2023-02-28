@@ -1,9 +1,9 @@
 ---
-title: 前端工程化--babel使用
+title: 前端工程化--常用配置
 date: '2022-11-25'
 tags: ['前端工程化', 'blog', 'babel']
 draft: false
-summary: '工程化下babel使用'
+summary: '工程化下常用配置'
 authors: ['default']
 ---
 
@@ -104,3 +104,32 @@ babel 默认只转换新的 JavaScript 语法,比如箭头函数、扩展运算(
 不转换新的 API,例如 Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise 等全局对象,以及一些定义在全局对象上的方法(比如 Object.assign)都不会转译。如果想使用这些新的对象和方法,则需要为当前环境提供一个垫片(polyfill)
 Polyfill 主要有三种
 @babel/polyfill
+
+## webpack 配置跨域
+
+### webpack 使用 proxy 底层原理
+
+原理其实就是开发阶段(development)本地开启一个 node 服务,这里用 express 模拟下,然后具体原理就是使用 http-proxy-middleware 这个中间件
+
+```js
+const express = require('express')
+const { createProxyMiddleware } = require('http-proxy-middleware')
+
+const app = express()
+
+app.use(express.static('./client'))
+
+app.use(
+  '/api',
+  createProxyMiddleware({
+    target: 'http://localhost:8000',
+    pathRewrite: {
+      '^/api': '',
+    },
+  })
+)
+
+app.listen(9000, () => {
+  console.log('express proxy服务器开启成功')
+})
+```

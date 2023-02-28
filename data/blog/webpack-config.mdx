@@ -2,6 +2,7 @@
 title: 前端工程化--常用配置
 date: '2022-11-25'
 tags: ['前端工程化', 'blog', 'babel']
+lastmod: '2023-2-27'
 draft: false
 summary: '工程化下常用配置'
 authors: ['default']
@@ -170,6 +171,8 @@ module.exports = {
         changeOrigin: true
       }
     },
+    // 设置后如果刷新返回404,会自动重定向到localhost:3000,重新请求这里的资源
+
     historyApiFallback: true
   },
   plugins: [
@@ -179,3 +182,13 @@ module.exports = {
   ]
 }
 ```
+
+## webpack 性能优化
+
+- 主要两个方面
+  - 打包后的结果
+    - 分包处理 react(lazy)/vue 路由懒加载
+    - 代码进行压缩(丑化代码)
+    - 删除无用的代码(tree shaking)
+    - CDN 服务器
+  - 优化打包速度

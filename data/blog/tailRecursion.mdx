@@ -1,0 +1,124 @@
+---
+title: 尾递归优化递归
+date: 2023-03-1T15:59:44Z
+tags: ['Algorithm']
+draft: false
+summary: '使用尾递归实现内存性能优化'
+authors: ['default']
+---
+
+## 什么是尾递归
+
+尾递归,即在函数尾位置调用自身(或是一个尾调用本身的其他函数等等).尾递归也是递归的一种特殊情形.尾递归是一种特殊的尾调用,即在尾部直接调用自身的递归函数
+
+- 尾递归在普通尾调用的基础上,多出了 2 个特征:
+
+  - 在尾部调用的是函数自身
+  - 可通过优化,使得计算仅占用常量栈空间
+  - 在递归调用的过程当中系统为每一层的返回点、局部量等开辟了栈来存储,递归次数过多容易造成栈溢出
+
+这时候,我们就可以使用尾递归,即一个函数中所有递归形式的调用都出现在函数的末尾,对于尾递归来说,由于只存在一个调用记录,所以永远不会发生"栈溢出"错误
+
+## 对比递归和尾递归
+
+分别使用递归和尾递归实现阶乘:
+
+```ts:Recursion.ts
+function factorial(n: number): number {
+  if (n === 1) return 1;
+  return n * factorial(n - 1);
+}
+```
+
+使用递归,每次返回值都会进行一次计算,也就会压入栈中,记录每一次计算结果
+
+```ts:TailRecursion.ts
+function factorial(n: number, total: number): number {
+  if (n === 1) return total;
+  return factorial(n - 1, n * total);
+}
+```
+
+而尾递归因为每次返回都是一个新的函数,则不会记录,造成过于内存占用,节省空间复杂度
+
+## 其他场景
+
+```js:数组求和.js
+function sumArray(arr, total) {
+    if(arr.length === 1) {
+        return total
+    }
+    return sum(arr, total + arr.pop())
+}
+```
+
+```js:斐波那契数列.js
+function factorial2 (n, start = 1, total = 1) {
+    if(n <= 2){
+        return total
+    }
+    return factorial2 (n -1, total, total + start)
+}
+```
+
+```js:数组扁平化.js
+let a = [1,2,3, [1,2,3, [1,2,3]]]
+// 变成
+let a = [1,2,3,1,2,3,1,2,3]
+// 具体实现
+function flat(arr = [], result = []) {
+    arr.forEach(v => {
+        if(Array.isArray(v)) {
+            result = result.concat(flat(v, []))
+        }else {
+            result.push(v)
+        }
+    })
+    return result
+}
+```
+
+```js:数组对象格式化.js
+let obj = {
+    a: '1',
+    b: {
+        c: '2',
+        D: {
+            E: '3'
+        }
+    }
+}
+// 转化为如下：
+let obj = {
+    a: '1',
+    b: {
+        c: '2',
+        d: {
+            e: '3'
+        }
+    }
+}
+
+// 代码实现
+function keysLower(obj) {
+    let reg = new RegExp("([A-Z]+)", "g");
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            let temp = obj[key];
+            if (reg.test(key.toString())) {
+                // 将修改后的属性名重新赋值给temp，并在对象obj内添加一个转换后的属性
+                temp = obj[key.replace(reg, function (result) {
+                    return result.toLowerCase()
+                })] = obj[key];
+                // 将之前大写的键属性删除
+                delete obj[key];
+            }
+            // 如果属性是对象或者数组，重新执行函数
+            if (typeof temp === 'object' || Object.prototype.toString.call(temp) === '[object Array]') {
+                keysLower(temp);
+            }
+        }
+    }
+    return obj;
+}
+```

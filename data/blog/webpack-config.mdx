@@ -186,9 +186,16 @@ module.exports = {
 ## webpack 性能优化
 
 - 主要两个方面
+
   - 打包后的结果
     - 分包处理 react(lazy)/vue 路由懒加载
     - 代码进行压缩(丑化代码)
     - 删除无用的代码(tree shaking)
     - CDN 服务器
   - 优化打包速度
+    - 代码分离,将一个 bundle.js 分成多个 bundle,实现按需加载,或者并行加载这些文件
+
+- webpack 常用代码分离方式:
+  - 入口起点:使用 entry 配置手动分离代码
+  - 防止重复:使用 Entry Dependencies 或者 SplitChunksPlugin 去重和分离代码
+  - 动态导入:通过模块的内联函数调用来分离代码

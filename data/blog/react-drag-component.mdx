@@ -1,0 +1,154 @@
+---
+title: 实现个简单的React拖拽组件
+date: '2023-3-1'
+tags: ['React', '通用组件']
+draft: false
+summary: '对于低代码平台拖拽组件的了解,简单实现下'
+authors: ['default']
+---
+
+## HTML5`darggable`API
+
+```html
+<div draggable="true"></div>
+```
+
+- 一些对应处理拖拽事件的函数:
+
+  - `ondrag` 拖放进行中
+  - `ondragend`/`ondragstart` 开始拖放和结束拖放
+  - `ondragover` 当元素或选中的文本被拖到一个目标目标上(每 100 毫秒触发一次)
+  - `ondragenter`/`ondragleave` 源对象开始进入/离开目标对象范围内
+  - `ondrop` 源对象被拖放到目标对象上
+
+- 数据的传输,使用 event.dataTransfer,又有如下 api:
+  - `setData` 添加拖拽数据,这个方法接收两个参数,第一个参数是数据类型(可自定义),第二个参数是对应的数据
+  - `getData` 反向操作,获取数据,只接收一个参数,即数据类型
+  - `clearData` 清除数据
+  - `setDragImage` 可自定义拖放过程中鼠标旁边的图像
+  - `effectAllowed` 属性指定拖放操作所允许的一个效果.copy 操作用于指示被拖动的数据将从当前位置复制到放置位置 \_move 操作用于指定被拖动的数据将被移动。link\_操作用于指示将在源和放置位置之间创建某种形式的关系或连接
+
+## React 实现下基本的几个组件
+
+### Drag 组件
+
+```tsx:Drag.tsx
+import types { FC, ReactNode } from "react";
+
+interface DragProps {
+  index: number;
+  id: string | number;
+  children?: ReactNode
+}
+
+const Drag: FC<DragProps> = ({id, index, children}) => {
+  const startDrag = (ev) => {
+    // 传输数据
+    ev.dataTransfer.setData("index", index);
+    ev.dataTransfer.setData("id", id);
+  };
+
+  return (
+    <div draggable onDragStart={startDrag}>
+      {children}
+    </div>
+  );
+};
+
+export default Drag;
+```
+
+### Drop 组件
+
+```tsx:Drop.tsx
+import { FC, useContext } from "react";
+import { Context } from "./DndContext";
+
+interface DrapProps {
+  index: number;
+  id: string | number;
+  children?: ReactNode
+}
+
+const Drop: FC<DrapProps> = ({ children }) => {
+  const { onDragOver, onDragEnd } = useContext(Context);
+  const dragOver = (ev) => {
+    ev.preventDefault();
+    if (onDragOver) onDragOver();
+  };
+
+  const drop = (ev) => {
+    // 获取数据
+    const oldIndex = ev.dataTransfer.getData("index");
+    // 获取拖拽结束时的Y轴坐标
+    const Y = ev.clientY;
+    // 简便计算，设定高度为20
+    // 我这里很偷懒，实际计算情况很复杂
+		//一般有两种实现思路，一种就是根据位置计算，另外一种就是给拖拽源设置可放置，然后获取
+    const height = 20;
+    const newIndex = Math.floor(Y / height);
+
+    if (oldIndex) {
+      if (onDragEnd) onDragEnd(Number(oldIndex), newIndex);
+    }
+  };
+
+  return (
+    <div onDragOver={dragOver} onDrop={drop}>
+      {children}
+    </div>
+  );
+};
+
+export default Drop;
+```
+
+```tsx:DndContext.tsx
+import { createContext, FC } from "react";
+
+export interface TContext {
+  onDragOver: () => void;
+  onDragEnd: (oldIndex: number, newIndex: number) => void;
+}
+
+const Context = createContext<TContext>({} as TContext);
+
+const DndContext: FC<TContext> = (props) => {
+  return (
+    <Context.Provider
+      value={{
+        onDragEnd: (oldIndex, newIndex) => {
+          props.onDragEnd(oldIndex, newIndex);
+        },
+        onDragOver: () => {
+          props.onDragOver();
+        }
+      }}
+    >
+      {props.children}
+    </Context.Provider>
+  );
+};
+
+export { Context };
+export default DndContext;
+```
+
+### 使用展示
+
+```tsx
+<DndContext
+  onDragEnd={(oldIndex, newIndex) => {
+    setData(arrayMove(data, oldIndex, newIndex))
+  }}
+  onDragOver={() => {}}
+>
+  <Drop>
+    {data.map((i, index) => (
+      <Drag key={i.id} id={i.id} index={index}>
+        <div className="item">{i.text}</div>
+      </Drag>
+    ))}
+  </Drop>
+</DndContext>
+```

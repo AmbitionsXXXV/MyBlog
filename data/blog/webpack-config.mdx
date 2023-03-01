@@ -188,10 +188,41 @@ module.exports = {
 - 主要两个方面
 
   - 打包后的结果
+
     - 分包处理 react(lazy)/vue 路由懒加载
     - 代码进行压缩(丑化代码)
+
+          - 使用 Terser 插件:bundle.js 默认是没有任何压缩的,我们平时工程里看到打包后丑化压缩的代码都是 webpack 底层使用 TerserPlugin 的原因
+          - Terser 是一个 JavaScript 解释的工具集
+          - 配置方式,`webpack.config.js`的`optimization`选项:
+
+          ```js:webpack.config.js
+          module.exports = {
+            optimization: {
+              minimize: true,
+              // 代码优化: TerserPlugin => 让代码更加简单 => Terser
+              minimizer: [
+                // JS 压缩的插件: TerserPlugin
+                new TerserPlugin({
+                  extractComments: false,
+                  terserOptions: {
+                    compress: {
+                      arguments: true,
+                      unused: true
+                    },
+                    mangle: true,
+                    // toplevel: false
+                    keep_fnames: true
+                  }
+                })
+              ]
+            }
+          }
+          ```
+
     - 删除无用的代码(tree shaking)
     - CDN 服务器
+
   - 优化打包速度
     - 代码分离,将一个 bundle.js 分成多个 bundle,实现按需加载,或者并行加载这些文件
 

@@ -75,7 +75,7 @@ module.exports = {
 
 ```js:babel.config.js
 module.exports = {
-  // babel 本身不具有任何转化功能，我们要的代码要转换某些功能，比如将es6转换为es5，我们就需要下载相应的插件，并且将这些插件配置到。babelrc文件的plguins里面
+  // babel 本身不具有任何转化功能,我们要的代码要转换某些功能,比如将es6转换为es5,我们就需要下载相应的插件,并且将这些插件配置到。babelrc文件的plguins里面
   // plugins: [
   //    解析箭头函数转换为普通函数
   //   "@babel/plugin-transform-arrow-functions",
@@ -230,3 +230,11 @@ module.exports = {
   - 入口起点:使用 entry 配置手动分离代码
   - 防止重复:使用 Entry Dependencies 或者 SplitChunksPlugin 去重和分离代码
   - 动态导入:通过模块的内联函数调用来分离代码
+
+## Plugin
+
+- `Plugin` 是如何被注册到 webpack 的生命周期中的:
+  - 第一:在 webpack 函数的 `createCompiler` 方法中,注册了所有的插件
+  - 第二:在注册插件时,会调用插件函数或者插件对象的 `apply` 方法
+  - 第三:插件方法会接收 `compiler` 对象,我们可以通过 `compiler` 对象来注册 Hook 的事件
+  - 第四:某些插件也会传入一个 `compilation` 的对象,我们也可以监听 `compilation` 的 Hook 事件

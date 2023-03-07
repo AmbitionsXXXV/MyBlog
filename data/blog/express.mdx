@@ -75,7 +75,7 @@ app.get(
   '/',
   (req, res, next) => {
     console.log('aaa')
-    // next 和终止操作不能同时存在，如：res.end(),res.send()
+    // next 和终止操作不能同时存在，如:res.end(),res.send()
     next()
   },
   (req, res, next) => {
@@ -89,7 +89,7 @@ app.get(
 </div>
 
 <div className="text-xl text-cyan-300">
-  中间件的本质是传递给express的一个回调函数：共接收三个参数
+  中间件的本质是传递给express的一个回调函数:共接收三个参数
   <ul>
     <li>request对象</li>
     <li>response对象</li>

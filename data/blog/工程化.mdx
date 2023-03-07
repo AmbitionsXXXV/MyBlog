@@ -45,9 +45,9 @@ authors: ['default']
 
 ##### 使用
 
-- 导出内容(模块)：exports,但主要方式还是 module.exports
+- 导出内容(模块):exports,但主要方式还是 module.exports
   - 但其实 CommonJS 中并没有 module.exports 的概念,这是借助于 node 全局对象下的 Module 类实现的
-- 导入内容(模块)：require
+- 导入内容(模块):require
 
 ```js
 // foo.js
@@ -96,8 +96,8 @@ console.log(foo.name) // oor
 
 ##### ES Module 使用
 
-- 导出内容(模块)：exports
-- 导入内容(模块)：import
+- 导出内容(模块):exports
+- 导入内容(模块):import
 - 另外:采用 ES Module 将自动采用严格模式:"use strict"
 
 ##### 和 CommonJS 的不同
@@ -107,7 +107,7 @@ console.log(foo.name) // oor
 
 ##### ES Module 的解析流程
 
-- ES Module 的解析过程可以划分为三个阶段：
+- ES Module 的解析过程可以划分为三个阶段:
 
   - 阶段一:构建(Construction),根据地址查找 js 文件,并且下载,将其解析成模块记录(Module Record)
   - 阶段二:实例化(Instantiation),对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向

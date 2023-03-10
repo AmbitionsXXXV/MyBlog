@@ -64,6 +64,14 @@ V8 源代码的结构化之后,就生成了抽象语法树 (AST),我们称为 AS
 
 # JavaScript 是基于对象实现的语言(但是并不是一门面向对象语言,因为 JavaScript 实现多态很复杂)
 
+![](/blog/js属性值类型.png)
+
+- 如图可以看出 JS 中对象属性类型有:
+  - `原始类型 (primitive)`,所谓的原始类的数据,是指值本身无法被改变,比如 JavaScript 中的字符串就是原始类型,如果你修改了 JavaScript 中字符串的值,那么 V8 会返回给你一个新的字符串,原始字符串并没有被改变,我们称这些类型的值为“原始值”
+    JavaScript 中的原始值主要包括 `null`、`undefined`、`boolean`、`number`、`string`、`bigint`、`symbol` 这七种
+  - `对象类型 (Object)`,对象的属性值也可以是另外一个对象,比如上图中的 `info` 属性值就是一个对象
+  - `函数类型 (Function)`,如果对象中的属性值是函数,那么我们把这个属性称为方法,所以我们又说对象具备属性和方法,那么上图中的 showinfo 就是 person 对象的一个方法
+
 # 对于使用 delete 删除对象属性的看法
 
 <div className="text-2xl text-cyan-300">为什么不建议使用 delete 删除对象属性</div>

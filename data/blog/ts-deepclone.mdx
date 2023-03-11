@@ -1,0 +1,58 @@
+---
+title: TypeScript实现DeepClone函数
+date: '2023-3-11'
+tags: ['DeepClone', 'TypeScript']
+draft: false
+summary: '使用TypeScript实现通用深拷贝函数'
+authors: ['default']
+---
+
+```ts
+function deepClone<T>(obj: T, hashMap = new WeakMap()): T {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj
+  }
+
+  const type = Object.prototype.toString.call(obj)
+
+  // 特殊类型处理
+  if (type === '[object Date]') {
+    return new Date((obj as Date).getTime()) as T
+  }
+
+  if (type === '[object RegExp]') {
+    const reg = new RegExp((obj as RegExp).source, (obj as RegExp).flags)
+    reg.lastIndex = (obj as RegExp).lastIndex
+    return reg as T
+  }
+
+  if (type === '[object Error]') {
+    const error = new Error((obj as Error).message)
+    error.stack = (obj as Error).stack
+    return error as T
+  }
+
+  if (hashMap.has(obj)) {
+    return hashMap.get(obj) as T
+  }
+
+  const copy: any = Array.isArray(obj) ? [] : {}
+
+  hashMap.set(obj, copy)
+
+  Object.keys(obj).forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      // 属性值为 undefined 或 NaN，需要特殊处理
+      const value = obj[key]
+      copy[key] =
+        value === undefined
+          ? undefined
+          : value !== value
+          ? NaN
+          : deepClone(value, hashMap)
+    }
+  })
+
+  return copy as T
+}
+```
